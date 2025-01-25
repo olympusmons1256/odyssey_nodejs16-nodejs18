@@ -1,0 +1,1 @@
+{"version":3,"file":"authTokenResponseBody.dto.js","sourceRoot":"","sources":["../../../../src/api/users/dto/authTokenResponseBody.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,6CAA4C;AAE5C,MAAa,qBAAqB;IAGhC,YAAY,KAAa;QACvB,IAAI,CAAC,WAAW,GAAG,KAAK,CAAC;IAC3B,CAAC;CACF;AALC;IAAC,IAAA,qBAAW,GAAE;;0DACK;AAFrB,sDAMC"}

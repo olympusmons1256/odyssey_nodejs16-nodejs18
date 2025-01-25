@@ -1,0 +1,10 @@
+import { GkeClusterInfo } from "../gcloud/containerClusters";
+import * as k8s from "@kubernetes/client-node";
+import { ClusterCredentials } from "../kubernetes/clusterConfig";
+import { ClusterProvider } from "../systemDocTypes";
+export declare const gameServerNameBase = "odyssey-server";
+export declare function resolveGkeGameserverClusterInfo(): GkeClusterInfo;
+export declare const coreweaveGameServerClusterCredentials: ClusterCredentials;
+export declare function resolveKubeConfig(workloadClusterProvider: ClusterProvider): Promise<k8s.KubeConfig>;
+export declare function formatGameServerName(roomId: string): string;
+export declare function formatServerConfigMapName(projectId: string): string | undefined;

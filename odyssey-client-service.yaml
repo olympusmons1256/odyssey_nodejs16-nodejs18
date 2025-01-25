@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: odyssey-client
+    app: odyssey-client
+    organizationId: ""
+    roomId: ""
+    userId: ""
+    deviceId: ""
+    deploymentId: ""
+    firebaseProjectId: ""
+spec:
+  clusterIP: "None"
+  ports:
+    - name: signallingproxy
+      protocol: TCP
+      targetPort: 80
+      port: 80
+  selector:
+    name: odyssey-client

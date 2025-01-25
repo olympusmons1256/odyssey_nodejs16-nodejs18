@@ -1,0 +1,11 @@
+import { ClusterProvider, ConfigurationOdysseyClientPod, CoreweaveWorkloadResourceRequest } from "../systemDocTypes";
+import * as k8s from "@kubernetes/client-node";
+import { ExtensionsV1beta1Ingress, V1Pod } from "@kubernetes/client-node";
+import { IceServer } from "../twilio/shared";
+import { ResolvedSpaceUnrealProjectVersion } from "../unrealProjects/shared";
+export declare function templateStreamingSessionConfigMap(projectId: string, organizationId: string, spaceId: string, roomId: string, userId: string, deviceId: string, deploymentId: string, iceServers: IceServer[], configMapCustomYaml: string): k8s.V1ConfigMap;
+export declare function templateStreamingSessionPod(projectId: string, disableAuth: boolean | undefined, workloadClusterProvider: ClusterProvider, configuration: ConfigurationOdysseyClientPod, organizationId: string, spaceId: string, roomId: string, serverAddress: string | undefined, levelId: string | undefined, userId: string, deviceId: string, deploymentId: string, customToken: string, podYaml: string, gpuWeights: CoreweaveWorkloadResourceRequest[], region: string, resolvedSpaceUnrealProjectVersion: ResolvedSpaceUnrealProjectVersion): V1Pod;
+export declare function templateStreamingSessionService(projectId: string, organizationId: string, spaceId: string, roomId: string, userId: string, deviceId: string, deploymentId: string, serviceYaml: string): any;
+export declare function templateStreamingSessionIngressGke(projectId: string, organizationId: string, spaceId: string, roomId: string, userId: string, deviceId: string, deploymentId: string, ingressYaml: string): ExtensionsV1beta1Ingress;
+export declare function templateStreamingSessionIngress(projectId: string, namespace: string, region: string, organizationId: string, spaceId: string, roomId: string, userId: string, deviceId: string, deploymentId: string, ingressYaml: string): ExtensionsV1beta1Ingress;
+export declare function templateImagePullDaemonset(daemonsetYaml: string, configuration: ConfigurationOdysseyClientPod): k8s.V1DaemonSet;

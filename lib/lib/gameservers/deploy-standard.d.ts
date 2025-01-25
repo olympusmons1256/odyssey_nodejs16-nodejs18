@@ -1,0 +1,10 @@
+import * as k8s from "@kubernetes/client-node";
+import * as admin from "firebase-admin";
+import { ClusterProvider, ConfigurationOdysseyServer } from "../systemDocTypes";
+import { RoomState } from "../docTypes";
+import { ResolvedSpaceUnrealProjectVersion } from "../unrealProjects/shared";
+export declare function updateRoomState(organizationId: string, roomId: string, newState?: RoomState, serverAddress?: string | admin.firestore.FieldValue, provisioningFailures?: number, deprovisioningFailures?: number | admin.firestore.FieldValue, region?: string, rejectedByBilling?: boolean): Promise<FirebaseFirestore.WriteResult>;
+export declare function waitUntilServiceReady(kc: k8s.KubeConfig, serviceName: string): Promise<string>;
+export declare function watchPodUntilReady(kc: k8s.KubeConfig, organizationId: string, roomId: string, workloadClusterProvider: ClusterProvider, podName: string): Promise<[RoomState, string | undefined]>;
+export declare function deployGameServerPodStack(projectId: string, configuration: ConfigurationOdysseyServer, region: string, organizationId: string, spaceId: string, roomId: string, resolvedSpaceUnrealProjectVersion: ResolvedSpaceUnrealProjectVersion, levelId: string | undefined): Promise<FirebaseFirestore.WriteResult | undefined>;
+export declare function deleteGameServerPodStack(roomId: string, workloadClusterProvider: ClusterProvider): Promise<boolean>;

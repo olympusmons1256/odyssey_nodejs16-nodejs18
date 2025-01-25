@@ -1,0 +1,10 @@
+import { ConfigurationOdysseyServer } from "../systemDocTypes";
+import { Room } from "../docTypes";
+import { ResolvedSpaceUnrealProjectVersion } from "../unrealProjects/shared";
+export declare function getConfigurationOdysseyServer(organizationId?: string, spaceId?: string, shardOfRoomId?: string, roomId?: string): Promise<ConfigurationOdysseyServer | undefined>;
+export declare function waitAndProvision(startTime: number, organizationId: string, roomId: string): Promise<FirebaseFirestore.WriteResult | undefined>;
+export declare function waitAndDeprovision(startTime: number, organizationId: string, roomId: string): Promise<FirebaseFirestore.WriteResult | undefined>;
+export declare function newGameServer(projectId: string, organizationId: string, spaceId: string, roomId: string, graphicsBenchmark: number, resolvedSpaceUnrealProjectVersion: ResolvedSpaceUnrealProjectVersion, levelId: string | undefined, shardOfRoomId: string | undefined): Promise<FirebaseFirestore.WriteResult | undefined>;
+export declare function deleteGameServer(organizationId: string, roomId: string): Promise<boolean>;
+export declare function onUpdateRoomState(organizationId: string, roomId: string, room: Room): Promise<void | FirebaseFirestore.WriteResult>;
+export declare function billingFeatureShardingEnabled(organizationId: string, triggerDoc: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>): Promise<boolean>;

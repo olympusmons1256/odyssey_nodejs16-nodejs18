@@ -1,0 +1,8 @@
+#/lib/
+#!src/lib/
+
+# Local function emulation config
+.runtimeconfig.json
+
+# Node.js dependency directory
+node_modules/

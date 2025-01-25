@@ -1,0 +1,73 @@
+# yamllint disable rule:line-length
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: unreal-project-version-package-validator
+  labels:
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                  - ORD1
+  volumes:
+    - name: unreal-project-version-builder-serviceaccount
+      secret:
+        secretName: unreal-project-version-builder-serviceaccount
+    - name: unreal-project-version-package-validator-configmap
+      configMap:
+        name: unreal-project-version-package-validator
+        defaultMode: 0o755
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: ngp-odyssey-gcr-read
+  schedulerName: prioritize-image-locality
+  containers:
+    - name: package-validator
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 2000m
+          memory: 4Gi
+      image: gcr.io/ngp-odyssey/unreal-project-version-builder:5.2.1
+      command:
+        - "/bin/sh"
+        - "-c"
+        - 'cd /project && /scripts/entrypoint.sh'
+      env:
+        - name: FIREBASE_PROJECT_ID
+          value:
+        - name: ORGANIZATION_ID
+          value:
+        - name: UNREAL_PROJECT_NAME
+          value:
+        - name: UNREAL_PROJECT_ID
+          value:
+        - name: UNREAL_PROJECT_VERSION_ID
+          value:
+        - name: UNREAL_PROJECT_VERSION_DOWNLOAD_URL
+          value:
+        - name: UNREAL_PROJECT_VERSION_UPLOAD_SHA256SUM
+          value:
+        - name: UNREAL_PROJECT_VERSION_PACKAGE_ARCHIVE_URL
+          value:
+        - name: UNREAL_PROJECT_VERSION_PACKAGE_ARCHIVE_SHA256SUM
+          value:
+        - name: UNREAL_PROJECT_VERSION_SELF_PACKAGED
+          value:
+        - name: VOLUME_SIZE_GB
+          value:
+        - name: REGION
+          value:
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - name: unreal-project-version-builder-serviceaccount
+          mountPath: /unreal-project-version-builder-serviceaccount
+        - name: unreal-project-version-package-validator-configmap
+          mountPath: /scripts

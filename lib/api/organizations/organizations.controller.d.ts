@@ -1,0 +1,37 @@
+import { CaslAbilityFactory } from "../casl/casl-ability.factory";
+import { SpaceTemplatesService } from "../spaceTemplates/spaceTemplates.service";
+import { CreateSpaceDto } from "./dto/createSpace.dto";
+import { CreateRuntimeModelDto } from "./dto/createRuntimeModel.dto";
+import { CreateSpatialMediaDto } from "./dto/createSpatialMedia.dto";
+import { UpdateSpaceDto } from "./dto/updateSpace.dto";
+import { OrganizationsService } from "./organizations.service";
+import { UpdateRuntimeModelDto } from "./dto/updateRuntimeModel.dto";
+import { UpdateSpatialMediaDto } from "./dto/updateSpatialMedia.dto";
+import { Organization } from "./organization.entity";
+import { Space } from "./space.entity";
+import { SpaceItem } from "./item.entity";
+import { InviteUsersToOrganizationDto, InviteUsersResultDto, InviteUsersToSpaceDto } from "./dto/invite.dto";
+export declare class OrganizationsController {
+    private organizationsService;
+    private spaceTemplatesService;
+    private caslAbilityFactory;
+    constructor(organizationsService: OrganizationsService, spaceTemplatesService: SpaceTemplatesService, caslAbilityFactory: CaslAbilityFactory);
+    static checkJwtUserOrganizationId(user: any, organizationId: string): void;
+    static getJwtUserOrganizationId(user: any): string;
+    private static checkBodyNotEmpty;
+    findOrganization(organizationId: string, req: any): Promise<Organization>;
+    findSpace(organizationId: string, spaceId: string, req: any): Promise<Space>;
+    findSpaces(organizationId: string, req: any): Promise<Space[]>;
+    createSpace(organizationId: string, createSpaceDto: CreateSpaceDto, req: any): Promise<Space>;
+    inviteUsers(inviteUsersDto: InviteUsersToOrganizationDto, req: any): Promise<InviteUsersResultDto>;
+    updateSpace(organizationId: string, spaceId: string, updateSpaceDto: UpdateSpaceDto, req: any): Promise<Space>;
+    deleteSpace(organizationId: string, spaceId: string, req: any): Promise<void>;
+    inviteUsersToSpace(inviteUsersDto: InviteUsersToSpaceDto, spaceId: string, req: any): Promise<InviteUsersResultDto>;
+    findSpaceItem(organizationId: string, spaceId: string, itemId: string, req: any): Promise<SpaceItem>;
+    deleteSpaceItem(organizationId: string, spaceId: string, itemId: string, req: any): Promise<void>;
+    findSpaceItems(organizationId: string, spaceId: string, req: any): Promise<SpaceItem[]>;
+    createRuntimeModel(organizationId: string, spaceId: string, createRuntimeModelDto: CreateRuntimeModelDto, req: any): Promise<SpaceItem>;
+    createSpatialMedia(organizationId: string, spaceId: string, createSpatialMediaDto: CreateSpatialMediaDto, req: any): Promise<SpaceItem>;
+    updateRuntimeModel(organizationId: string, spaceId: string, runtimeModelId: string, updateRuntimeModelDto: UpdateRuntimeModelDto, req: any): Promise<SpaceItem>;
+    updateSpatialMedia(organizationId: string, spaceId: string, spatialMediaId: string, updateSpatialMediaDto: UpdateSpatialMediaDto, req: any): Promise<SpaceItem>;
+}
