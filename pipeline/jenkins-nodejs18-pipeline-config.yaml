@@ -10,28 +10,26 @@ metadata:
     app.kubernetes.io/name: jenkins
 data:
   pipeline.groovy: |
-    folder('odyssey') {
-        displayName('Odyssey')
-        description('Odyssey Functions')
-    }
-    
-    multibranchPipelineJob('odyssey/nodejs18-functions') {
+    pipelineJob('odyssey-functions-nodejs18-deploy') {
         description('Firebase Functions deployment for Node.js 18 codebase')
-        branchSources {
-            git {
-                id('odyssey-nodejs18-functions')
-                remote('https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git')
-                includes('main')
-            }
-        }
-        factory {
-            workflowBranchProjectFactory {
+        definition {
+            cpsScm {
+                lightweight(true)
+                scm {
+                    git {
+                        remote {
+                            url('https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git')
+                        }
+                        branch('main')
+                        extensions {
+                            cleanBeforeCheckout()
+                        }
+                    }
+                }
                 scriptPath('Jenkinsfile')
             }
         }
         triggers {
-            periodicFolderTrigger {
-                interval('5m')
-            }
+            scm('H/5 * * * *')
         }
     }
