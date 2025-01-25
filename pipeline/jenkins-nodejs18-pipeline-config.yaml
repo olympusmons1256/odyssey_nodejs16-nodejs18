@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-nodejs18-pipeline-config
+  namespace: tenant-newgame
+  labels:
+    app.kubernetes.io/component: jenkins-controller
+    app.kubernetes.io/instance: jenkins
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: jenkins
+data:
+  pipeline.groovy: |
+    pipelineJob('odyssey-functions-nodejs18-deploy') {
+        description('Firebase Functions deployment for Node.js 18 codebase')
+        
+        definition {
+            cpsScm {
+                scm {
+                    git {
+                        remote {
+                            url('https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git')
+                            credentials('git-credentials')
+                        }
+                        branch('*/main')
+                    }
+                }
+                scriptPath('Jenkinsfile')
+            }
+        }
+    }
