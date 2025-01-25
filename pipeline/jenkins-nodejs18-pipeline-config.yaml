@@ -19,7 +19,6 @@ data:
                     git {
                         remote {
                             url('https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git')
-                            credentials('git-credentials')
                         }
                         branch('*/main')
                     }

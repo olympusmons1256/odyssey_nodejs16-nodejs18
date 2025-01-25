@@ -14,10 +14,9 @@ pipeline {
                 // Clean workspace before build
                 cleanWs()
                 
-                // Checkout main repository
+                // Checkout main repository without credentials
                 git url: env.MAIN_REPO,
-                    branch: 'main',
-                    credentialsId: 'git-credentials'
+                    branch: 'main'
             }
         }
         
