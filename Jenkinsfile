@@ -4,7 +4,7 @@ pipeline {
     environment {
         FIREBASE_PROJECT = 'ngp-odyssey-testing'
         NODE_ENV = 'testing'
-        FUNCTIONS_DIR = 'odyssey-local/functions'
+        FUNCTIONS_DIR = '.'  
         MAIN_REPO = 'https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git'
     }
     
