@@ -11,7 +11,7 @@ pipeline {
                   serviceAccountName: jenkins
                   containers:
                   - name: jnlp
-                    image: jenkins/inbound-agent:4.11.2-4
+                    image: jenkins/inbound-agent:3.40-1
                     resources:
                       requests:
                         cpu: 512m
