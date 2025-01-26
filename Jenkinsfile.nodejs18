@@ -1,0 +1,105 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml '''
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                  labels:
+                    jenkins: jenkins-jenkins-agent
+                spec:
+                  serviceAccountName: jenkins
+                  containers:
+                  - name: jnlp
+                    image: jenkins/inbound-agent:4.11.2-4
+                    resources:
+                      requests:
+                        cpu: 512m
+                        memory: 512Mi
+                      limits:
+                        cpu: 512m
+                        memory: 512Mi
+                  - name: nodejs
+                    image: node:18
+                    command:
+                    - cat
+                    tty: true
+                    resources:
+                      requests:
+                        memory: "512Mi"
+                        cpu: "500m"
+                      limits:
+                        memory: "1Gi"
+                        cpu: "1"
+                    volumeMounts:
+                    - name: npm-cache
+                      mountPath: /root/.npm
+                    - name: firebase-sa
+                      mountPath: /etc/firebase-sa
+                      readOnly: true
+                  volumes:
+                  - name: npm-cache
+                    emptyDir: {}
+                  - name: firebase-sa
+                    secret:
+                      secretName: firebase-write-serviceaccount-ngp-odyssey-testing
+            '''
+            defaultContainer 'nodejs'
+        }
+    }
+    
+    environment {
+        FIREBASE_PROJECT = 'ngp-odyssey-testing'
+        NODE_ENV = 'testing'
+        FUNCTIONS_DIR = 'odyssey-local/functions'
+        MAIN_REPO = 'https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git'
+        GOOGLE_APPLICATION_CREDENTIALS = '/etc/firebase-sa/key.json'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clean workspace before build
+                cleanWs()
+                
+                // Checkout main repository
+                git url: env.MAIN_REPO,
+                    branch: 'main',
+                    credentialsId: 'git-credentials-odyssey-nodejs18'
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                dir(env.FUNCTIONS_DIR) {
+                    sh 'npm install'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                dir(env.FUNCTIONS_DIR) {
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                dir(env.FUNCTIONS_DIR) {
+                    // Install Firebase CLI if not present
+                    sh 'npm install -g firebase-tools'
+                    // Deploy to Firebase using service account
+                    sh 'firebase deploy --only functions --project ${FIREBASE_PROJECT}'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
