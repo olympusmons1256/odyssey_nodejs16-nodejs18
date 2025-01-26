@@ -51,8 +51,6 @@ pipeline {
     environment {
         FIREBASE_PROJECT = 'ngp-odyssey-testing'
         NODE_ENV = 'testing'
-        FUNCTIONS_DIR = 'odyssey-local/functions'
-        MAIN_REPO = 'https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git'
         GOOGLE_APPLICATION_CREDENTIALS = '/etc/firebase-sa/key.json'
     }
     
@@ -63,7 +61,7 @@ pipeline {
                 cleanWs()
                 
                 // Checkout main repository
-                git url: env.MAIN_REPO,
+                git url: 'https://github.com/olympusmons1256/odyssey_nodejs16-nodejs18.git',
                     branch: 'main',
                     credentialsId: 'git-credentials-odyssey-nodejs18'
             }
@@ -71,28 +69,22 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                dir(env.FUNCTIONS_DIR) {
-                    sh 'npm install'
-                }
+                sh 'npm install'
             }
         }
         
         stage('Build') {
             steps {
-                dir(env.FUNCTIONS_DIR) {
-                    sh 'npm run build'
-                }
+                sh 'npm run build'
             }
         }
         
         stage('Deploy') {
             steps {
-                dir(env.FUNCTIONS_DIR) {
-                    // Install Firebase CLI if not present
-                    sh 'npm install -g firebase-tools'
-                    // Deploy to Firebase using service account
-                    sh 'firebase deploy --only functions --project ${FIREBASE_PROJECT}'
-                }
+                // Install Firebase CLI if not present
+                sh 'npm install -g firebase-tools'
+                // Deploy to Firebase using service account
+                sh 'firebase deploy --only functions --project ${FIREBASE_PROJECT}'
             }
         }
     }
