@@ -1,0 +1,184 @@
+# yamllint disable rule:line-length
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: unreal-project-version-builder
+  labels:
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                  - ORD1
+  volumes:
+    - name: unreal-project-version-builder-serviceaccount
+      secret:
+        secretName: unreal-project-version-builder-serviceaccount
+    - name: bigquery-writer-serviceaccount
+      secret:
+        secretName: bigquery-writer-serviceaccount
+    - name: unreal-project-version-builder-configmap
+      configMap:
+        name: unreal-project-version-builder
+        defaultMode: 0o755
+    - name: shared-ddc
+      persistentVolumeClaim:
+        readOnly: false
+        claimName: unreal-shared-ddc-ord1
+    - name: plugin-version
+      persistentVolumeClaim:
+        readOnly: true
+        claimName: plugin-version
+    - name: logs
+      emptyDir:
+        defaultMode: 0o777
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: ngp-odyssey-gcr-read
+  schedulerName: prioritize-image-locality
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+  containers:
+    - name: unreal-project-version-builder
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 16000m
+          memory: 32Gi
+      image: gcr.io/ngp-odyssey/unreal-project-version-builder:20230323233718
+      command:
+        - "/bin/sh"
+        - "-c"
+        - 'cd /project && /scripts/entrypoint.sh 2>&1 | tee -a /entrypoint/logs/entrypoint.log'
+      env:
+        - name: FIREBASE_PROJECT_ID
+          value:
+        - name: ORGANIZATION_ID
+          value:
+        - name: UNREAL_PROJECT_NAME
+          value:
+        - name: UNREAL_PROJECT_ID
+          value:
+        - name: UNREAL_PROJECT_VERSION_ID
+          value:
+        - name: UNREAL_PROJECT_VERSION_UPLOAD_URL
+          value:
+        - name: UE_SharedDataCachePath
+          value: /shared-ddc
+        - name: UNREAL_PROJECT_VERSION_UPLOAD_SHA256SUM
+          value:
+        - name: UNREAL_PROJECT_VERSION_DOWNLOAD_URL
+          value:
+        - name: UNREAL_PLUGIN_VERSION_ID
+          value:
+        - name: UNREAL_PLUGIN_VERSION_URL
+          value:
+        - name: UNREAL_PLUGIN_VERSION_SHA256SUM
+          value:
+        - name: UNREAL_PLUGIN_VERSION_TOOLKIT_URL
+          value:
+        - name: UNREAL_PLUGIN_VERSION_TOOLKIT_SHA256SUM
+          value:
+        - name: TARGET
+          value:
+        - name: LEVEL_NAME
+          value:
+        - name: LEVEL_FILE_PATH
+          value:
+        - name: REGION
+          value:
+        - name: UPLOADER
+          value:
+      volumeMounts:
+        - name: unreal-project-version-builder-serviceaccount
+          mountPath: /unreal-project-version-builder-serviceaccount
+        - name: unreal-project-version-builder-configmap
+          mountPath: /scripts
+        - name: shared-ddc
+          mountPath: /shared-ddc
+        - name: plugin-version
+          mountPath: /plugin-version
+        - name: logs
+          mountPath: /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs
+          subPath: logs/build
+        - name: logs
+          mountPath: /entrypoint/logs/
+          subPath: logs/entrypoint
+    - name: fluentd
+      image: gcr.io/ngp-odyssey/fluentd-bigquery:1
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      env:
+        - name: FIREBASE_PROJECT_ID
+          value: ""
+        - name: ORGANIZATION_ID
+          value: ""
+        - name: UNREAL_PROJECT_NAME
+          value: ""
+        - name: UNREAL_PROJECT_ID
+          value: ""
+        - name: UNREAL_PROJECT_VERSION_ID
+          value: ""
+        - name: UNREAL_PROJECT_VERSION_UPLOAD_URL
+          value: ""
+        - name: UE_SharedDataCachePath
+          value: /shared-ddc
+        - name: UNREAL_PROJECT_VERSION_UPLOAD_SHA256SUM
+          value: ""
+        - name: UNREAL_PROJECT_VERSION_DOWNLOAD_URL
+          value: ""
+        - name: UNREAL_PLUGIN_VERSION_ID
+          value: ""
+        - name: UNREAL_PLUGIN_VERSION_URL
+          value: ""
+        - name: UNREAL_PLUGIN_VERSION_SHA256SUM
+          value: ""
+        - name: UNREAL_PLUGIN_VERSION_TOOLKIT_URL
+          value: ""
+        - name: UNREAL_PLUGIN_VERSION_TOOLKIT_SHA256SUM
+          value: ""
+        - name: TARGET
+          value: ""
+        - name: LEVEL_NAME
+          value: ""
+        - name: LEVEL_FILE_PATH
+          value: ""
+        - name: REGION
+          value: ""
+        - name: UPLOADER
+          value: ""
+        - name: KUBERNETES_POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: KUBERNETES_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBERNETES_POD_NODE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      volumeMounts:
+        - name: unreal-project-version-builder-configmap
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+        - name: shared-ddc
+          mountPath: /shared-ddc
+        - name: bigquery-writer-serviceaccount
+          mountPath: /secret
+        - name: logs
+          mountPath: /logs/
+          subPath: logs/
