@@ -10,7 +10,11 @@ metadata:
     app.kubernetes.io/name: jenkins
 data:
   pipeline.groovy: |
-    pipelineJob('odyssey-functions-nodejs18-deploy') {
+    folder('odyssey') {
+        description('Odyssey Project Pipelines')
+    }
+    
+    pipelineJob('odyssey/functions-nodejs18-deploy') {
         description('Firebase Functions deployment for Node.js 18 codebase')
         definition {
             cpsScm {
@@ -26,7 +30,7 @@ data:
                         }
                     }
                 }
-                scriptPath('../Jenkinsfile')
+                scriptPath('Jenkinsfile')
             }
         }
     }
