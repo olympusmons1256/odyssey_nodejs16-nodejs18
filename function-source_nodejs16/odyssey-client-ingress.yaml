@@ -1,0 +1,31 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+  labels:
+    name: odyssey-client
+    app: odyssey-client
+    organizationId: ""
+    roomId: ""
+    userId: ""
+    deviceId: ""
+    deploymentId: ""
+    firebaseProjectId: ""
+  name: odyssey-client
+  namespace: tenant-newgame
+spec:
+  tls:
+    - hosts:
+        - odyssey-client.tenant-newgame.ewr1.ingress.coreweave.cloud
+      secretName: wildcard-tenant-newgame-ewr1-ingress-coreweave-cloud
+  rules:
+    - host: odyssey-client.tenant-newgame.ewr1.ingress.coreweave.cloud
+      http:
+        paths:
+          - backend:
+              serviceName: odyssey-client
+              servicePort: 80

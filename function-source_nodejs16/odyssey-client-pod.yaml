@@ -1,0 +1,285 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: odyssey-client
+  labels:
+    name: odyssey-client
+    app: odyssey-client
+    organizationId: ""
+    roomId: ""
+    userId: ""
+    deviceId: ""
+    deploymentId: ""
+    firebaseProjectId: ""
+    unrealProjectId: ""
+    unrealProjectVersionId: ""
+    buildPluginVersionId: ""
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: gpu.nvidia.com/class
+                operator: In
+                values:
+                  - Quadro_RTX_4000
+                  - Quadro_RTX_5000
+                  - RTX_A4000
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                  - ORD1
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          preference:
+            matchExpressions:
+              - key: gpu.nvidia.com/class
+                operator: In
+                values:
+                  - Quadro_RTX_4000
+        - weight: 40
+          preference:
+            matchExpressions:
+              - key: gpu.nvidia.com/class
+                operator: In
+                values:
+                  - Quadro_RTX_5000
+  tolerations:
+    - key: "reserved"
+      operator: "Equal"
+      value: "d955ea80b62e29a04d7e0c3e146e9c39"
+      effect: "NoSchedule"
+  schedulerName: prioritize-image-locality
+  automountServiceAccountToken: false
+  imagePullSecrets:
+    - name: ngp-odyssey-gcr-read
+  containers:
+    - name: unreal
+      image: gcr.io/ngp-odyssey/odyssey-client:latest
+      imagePullPolicy: IfNotPresent
+      command: ["/ue4-entrypoint"]
+      lifecycle:
+        preStop:
+          exec:
+            command: ["/bin/sh", "-c", "pgrep -if odyssey | xargs kill -2"]
+      resources:
+        requests:
+          cpu: 1000m
+          memory: 4Gi
+        limits:
+          nvidia.com/gpu: 1
+          cpu: 1000m
+          memory: 4Gi
+      env:
+        - name: FIREBASE_PROJECT_ID
+          value: ""
+        - name: FIREBASE_API_KEY
+          value: ""
+        - name: ORGANIZATION_ID
+          value: ""
+        - name: DEPLOYMENT_ID
+          value: ""
+        - name: ROOM_ID
+          value: ""
+        - name: SPACE_ID
+          value: ""
+        - name: SERVER_ADDRESS
+          value: ""
+        - name: ENVIRONMENT_MAP
+          value: ""
+        - name: USER_ID
+          value: ""
+        - name: USERS_COLLECTION_PATH
+          value: ""
+        - name: DEVICE_ID
+          value: ""
+        - name: CUSTOM_TOKEN
+          value: ""
+        - name: BASE_CLI_ARGS
+          value: ""
+        - name: OVERRIDE_CLI_ARGS
+          value: ""
+      volumeMounts:
+        - name: config-volume
+          mountPath: /config-volume
+        - name: config-volume
+          mountPath: /root-entrypoint
+          subPath: root-entrypoint
+        - name: config-volume
+          mountPath: /ue4-entrypoint
+          subPath: ue4-entrypoint
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /entrypoint/logs/
+          subPath: logs/entrypoint
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+    - name: signallingwebserver
+      image: gcr.io/ngp-odyssey/signallingwebserver:5.1-20221214052703
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      volumeMounts:
+        - name: odyssey-client-custom
+          mountPath: /SignallingWebServer/config.json
+          subPath: config.json
+        - mountPath: /usr/src/app/logs
+          subPath: logs/signallingwebserver
+          name: logs
+    - name: signallingproxy
+      image: gcr.io/ngp-odyssey/signallingproxy:20230711113347
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      ports:
+        - containerPort: 80
+      env:
+        - name: ORGANIZATION_ID
+          value: ""
+        - name: ROOM_ID
+          value: ""
+        - name: USER_ID
+          value: ""
+        - name: DEVICE_ID
+          value: ""
+        - name: DISABLE_AUTH
+          value: "false"
+      volumeMounts:
+        - name: config-volume
+          mountPath: /usr/local/lib/nginx-jwt-verify-user.lua
+          subPath: nginx-jwt-verify-user.lua
+        - name: config-volume
+          mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          subPath: openresty-nginx-main.conf
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: nginx.conf
+        - mountPath: /usr/local/openresty/nginx/logs
+          subPath: logs/signallingproxy
+          name: logs
+    - name: firebase-bridge
+      image: gcr.io/ngp-odyssey/firebase-bridge:latest
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 256m
+          memory: 256Mi
+        limits:
+          cpu: 256m
+          memory: 256Mi
+      env:
+        - name: ORGANIZATION_ID
+          value: ""
+        - name: ROOM_ID
+          value: ""
+        - name: SPACE_ID
+          value: ""
+      volumeMounts:
+        - mountPath: /usr/src/app/logs
+          subPath: logs/firebase-bridge
+          name: logs
+        - name: firebase-write-serviceaccount
+          mountPath: /firebase-write-serviceaccount
+    - name: fluentd
+      image: gcr.io/ngp-odyssey/fluentd-bigquery:1
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      env:
+        - name: FIREBASE_PROJECT_ID
+          value: ""
+        - name: ORGANIZATION_ID
+          value: ""
+        - name: FIREBASE_EMULATOR
+          value: ""
+        - name: SPACE_ID
+          value: ""
+        - name: ROOM_ID
+          value: ""
+        - name: USER_ID
+          value: ""
+        - name: DEVICE_ID
+          value: ""
+        - name: DEPLOYMENT_ID
+          value: ""
+        - name: ODYSSEY_UE4_VERSION
+          value: ""
+        - name: UNREAL_PROJECT_ID
+          value: ""
+        - name: UNREAL_PROJECT_VERSION_ID
+          value: ""
+        - name: BUILD_PLUGIN_VERSION_ID
+          value: ""
+        - name: KUBERNETES_POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: KUBERNETES_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBERNETES_POD_NODE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+      volumeMounts:
+        - name: config-volume
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+        - name: bigquery-writer-serviceaccount
+          mountPath: /secret
+        - name: logs
+          mountPath: /logs/
+          subPath: logs/
+    - name: script-exporter
+      image: ricoberger/script_exporter:v2.5.2
+      args:
+        - -config.file=/etc/script_exporter/config.yaml
+      ports:
+        - name: script-exporter
+          containerPort: 9469
+          protocol: TCP
+      requests:
+        cpu: 256m
+        memory: 256Mi
+      limits:
+        cpu: 256m
+        memory: 256Mi
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/script_exporter/odyssey-client.sh
+          subPath: script_exporter-odyssey-client.sh
+        - name: config-volume
+          mountPath: /etc/script_exporter/config.yaml
+          subPath: script_exporter-config.yaml
+  volumes:
+    - name: odyssey-client-custom
+      configMap:
+        name: odyssey-client-custom
+        defaultMode: 0o755
+    - name: bigquery-writer-serviceaccount
+      secret:
+        secretName: bigquery-writer-serviceaccount
+    - name: firebase-write-serviceaccount
+      secret:
+        secretName: firebase-write-serviceaccount
+    - name: config-volume
+      configMap:
+        name: odyssey-client
+        defaultMode: 0o755
+    - name: logs
+      emptyDir:
+        defaultMode: 0o777
+    - name: tmp
+      emptyDir:
+        defaultMode: 0o777

@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    kubernetes.io/ingress.class: "nginx"
+  name: odyssey-client
+spec:
+  tls:
+    - hosts:
+        - "ingress-gke.odyssey-client-dev.newgameplus.live"
+      secretName: wildcard-odyssey-client-dev-newgameplus-live
+  rules:
+    - host: "ingress-gke.odyssey-client-dev.newgameplus.live"
+      http:
+        paths:
+          - backend:
+              service:
+                name: odyssey-client
+                port:
+                  number: 80
+            path: /session-id(/|$)(.*)
+            pathType: ImplementationSpecific

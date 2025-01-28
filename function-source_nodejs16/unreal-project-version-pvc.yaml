@@ -1,0 +1,14 @@
+# yamllint disable rule:line-length
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ue-project-{unrealProjectVersionId}-ord1
+  labels: {}
+spec:
+  storageClassName: shared-nvme-ord1
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10GB
