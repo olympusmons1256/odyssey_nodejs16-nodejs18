@@ -6,3 +6,10 @@
 
 # Node.js dependency directory
 node_modules/
+
+# Credentials and environment config
+
+# Debug logs
+
+# Build artifacts
+lib/
