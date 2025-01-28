@@ -2,14 +2,14 @@
 // @ts-ignore
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import {customRunWith} from "./shared";
+import {customRunWith, customRunWithWarm} from "./shared";
 import {getStripeSecretKey, getStripeWebhookSigningKey} from "./lib/firebase";
 import {Stripe} from "stripe";
 import {getBillingSubscriptionRef, getBillingStreamingCreditsPurchasesRef} from "./lib/documents/firestore";
 import {emailStripeInvoice, organizationBillingStateFromLatestSubscriptionInvoices, pendingSubscriptionFromSchedule, stripeCustomerAndOrganizationId, syncLatestStripeProductsToFirestore, writeOrganizationBillingStateChanges} from "./lib/stripe";
 import {docTypes} from "./lib/docTypes";
 
-const customRunWithWarmStripeKey = {...customRunWith, secrets: ["STRIPE_SECRETKEY", "STRIPE_WEBHOOK_SIGNING_KEY"]};
+const customRunWithWarmStripeKey = {...customRunWithWarm, secrets: ["STRIPE_SECRETKEY", "STRIPE_WEBHOOK_SIGNING_KEY"]};
 export const stripeWebhookHandler: functions.HttpsFunction =
 functions
   .runWith(customRunWithWarmStripeKey)
