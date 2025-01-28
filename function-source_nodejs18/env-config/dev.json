@@ -1,0 +1,6 @@
+{
+    "name": "dev",
+    "firebase_project": "ngp-odyssey",
+    "k8s_namespace": "tenant-newgame",
+    "k8s_secret": "firebase-write-serviceaccount-ngp-odyssey"
+}

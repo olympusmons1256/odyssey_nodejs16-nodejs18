@@ -1,0 +1,6 @@
+{
+    "name": "prod",
+    "firebase_project": "ngp-odyssey-prod",
+    "k8s_namespace": "tenant-newgame-prod",
+    "k8s_secret": "firebase-write-serviceaccount-ngp-odyssey-prod"
+}
