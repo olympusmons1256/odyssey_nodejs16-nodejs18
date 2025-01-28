@@ -2,7 +2,7 @@
 // @ts-ignore
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import {customRunWith, customRunWithWarm} from "./shared";
+import {customRunWith, customRunWithWarm} from "../shared";
 import {getStripeSecretKey, getStripeWebhookSigningKey} from "./lib/firebase";
 import {Stripe} from "stripe";
 import {getBillingSubscriptionRef, getBillingStreamingCreditsPurchasesRef} from "./lib/documents/firestore";

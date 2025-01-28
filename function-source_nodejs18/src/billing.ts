@@ -1,7 +1,7 @@
 // @ts-nocheck - Node.js 16 compatibility
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import {customRunWith, customRunWithWarm} from "./shared";
+import {customRunWith, customRunWithWarm} from "../shared";
 import {cancelStripeSubscriptionDowngrade, updateStripeSubscription, createNewCustomerAndCheckoutSandbox, generateStripeCheckoutUrl, generateStripeCustomerPortalUrl, invoiceAndPayAutoTopup} from "./lib/stripe/index";
 import {createNewOrganizationWithOwner} from "./lib/organizations/index";
 import {autoTopupPurchaseWildcardPath, billingFeaturesOverridePath, billingPublicPath, billingSubscriptionPath, billingUsagePath, getBillingAutoTopupsRef, getBillingProductsAvailable, getBillingPublic, getBillingPublicRef, getBillingSubscription, getBillingUsage, getBillingUsageRef, getRoomsRef, productsAvailablePath, streamingCreditsPurchaseWildcardPath} from "./lib/documents/firestore";
